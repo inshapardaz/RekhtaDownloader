@@ -4,4 +4,4 @@ A library to download books from rekhta website.
 
 # Build Status
 
-[![Build status](https://ci.appveyor.com/api/projects/status/hmtcrynhyxbtxdno?svg=true)](https://ci.appveyor.com/project/umerfaruk/rekhtadownloader)
+[![Build status](https://ci.appveyor.com/api/projects/status/j6psbb2mlycchsl7/branch/master?svg=true)](https://ci.appveyor.com/project/umerfaruk/rekhtadownloader)
