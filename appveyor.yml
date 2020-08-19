@@ -9,7 +9,7 @@ build_script:
 
     dotnet build  -c Release
 
-    dotnet pack .\src\RekhtaDownloader\RekhtaDownloader.csproj  --configuration release  --version-suffix %APPVEYOR_BUILD_VERSION%
+    dotnet pack .\src\RekhtaDownloader\RekhtaDownloader.csproj  --configuration release  --version-suffix %APPVEYOR_BUILD_NUMBER%
 
 artifacts:
 
