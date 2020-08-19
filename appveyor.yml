@@ -1,19 +1,28 @@
 version: 1.0.{build}
+
 image: Visual Studio 2019
 
 build_script:
 
 - cmd: >-
     dotnet restore 
+
     dotnet build  -c Release
+
     dotnet pack .\src\RekhtaDownloader\RekhtaDownloader.csproj /p:PackageVersion=%APPVEYOR_BUILD_VERSION%
 
 artifacts:
+
 - path: '**\*.nupkg'
+
   name: NugetPackage
 
 deploy:
+
 - provider: NuGet
+
   api_key:
+
     secure: QHBYaFSHQOYnBY6XwHIsGyEtgntE4/PUCKrPq3dx0Kt91v41LNvBBrsKHzLHHuP4
+
   artifact: /.*\.nupkg/
