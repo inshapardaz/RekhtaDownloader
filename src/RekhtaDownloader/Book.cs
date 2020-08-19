@@ -45,7 +45,7 @@ namespace RekhtaDownloader
             _cancellationToken = cancellationToken;
         }
 
-        public async Task DownloadBook()
+        public async Task DownloadBook(string outputPath)
         {
             var pageContents = await HttpHelper.GetTextBody(_bookUrl);
             _bookId = FindTextBetween(pageContents, "var bookId = ", ";")?.Trim().Trim('"', '\'');
@@ -58,7 +58,7 @@ namespace RekhtaDownloader
             _pageCount = int.Parse(FindTextBetween(pageContents, "var totalPageCount =", ";")?.Trim().Trim('"', '\'') ?? throw new InvalidOperationException("Unable to parse total page count"));
             _logger.Log($"Page Count: {_pageCount}");
 
-            _outputDirectory = Path.Combine(Environment.CurrentDirectory, _bookId.ToSafeFilename());
+            _outputDirectory = Path.Combine(outputPath, _bookId.ToSafeFilename());
 
             _outputDirectory.EnsureEmptyDirectory();
 

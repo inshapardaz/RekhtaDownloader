@@ -23,11 +23,11 @@ namespace RekhtaDownloader
             _logger = logger;
         }
 
-        public async Task<string> DownloadBook(string bookUrl, int taskCount, OutputType output, CancellationToken token)
+        public async Task<string> DownloadBook(string bookUrl, int taskCount, OutputType output, string outputPath = null, CancellationToken token = default(CancellationToken))
         {
             var book = new Book(bookUrl, taskCount, _logger, token);
 
-            await book.DownloadBook();
+            await book.DownloadBook(outputPath ?? Environment.CurrentDirectory);
 
             if (!book.Pages.Any())
             {
