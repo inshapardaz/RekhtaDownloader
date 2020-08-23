@@ -26,8 +26,8 @@ namespace RekhtaDownloader
         public async Task<string> DownloadBook(string bookUrl, int taskCount, OutputType output, string outputPath = null, CancellationToken token = default(CancellationToken))
         {
             var book = new Book(bookUrl, taskCount, _logger, token);
-
-            await book.DownloadBook(outputPath ?? Environment.CurrentDirectory);
+            var workingFolder = outputPath ?? Environment.CurrentDirectory;
+            await book.DownloadBook(workingFolder);
 
             if (!book.Pages.Any())
             {
@@ -37,18 +37,18 @@ namespace RekhtaDownloader
 
             if (output == OutputType.Pdf)
             {
-                return ExportPdf(book);
+                return ExportPdf(book, workingFolder);
             }
 
             if (output == OutputType.Images)
             {
-                return ExportImages(book);
+                return ExportImages(book, workingFolder);
             }
 
             return null;
         }
 
-        private string ExportPdf(Book book)
+        private string ExportPdf(Book book, string outputPath)
         {
             var firstPagePath = book.Pages.FirstOrDefault()?.PageImagePath;
 
@@ -60,7 +60,7 @@ namespace RekhtaDownloader
 
             _logger.Log("Pages Downloaded. Creating Pdf...");
 
-            var pdfPath = Path.Combine(Environment.CurrentDirectory, book.BookName.ToSafeFilename() + ".pdf");
+            var pdfPath = Path.Combine(outputPath, book.BookName.ToSafeFilename() + ".pdf");
 
             pdfPath.MakeSureFileDoesNotExist();
 
@@ -97,9 +97,9 @@ namespace RekhtaDownloader
             return pdfPath;
         }
 
-        private string ExportImages(Book book)
+        private string ExportImages(Book book, string outputPath)
         {
-            var bookDir = Path.Combine(Directory.GetCurrentDirectory(), book.BookName.ToSafeFilename());
+            var bookDir = Path.Combine(outputPath, book.BookName.ToSafeFilename());
 
             try
             {
