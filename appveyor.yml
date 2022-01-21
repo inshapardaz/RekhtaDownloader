@@ -23,6 +23,6 @@ deploy:
 
   api_key:
 
-    secure: QHBYaFSHQOYnBY6XwHIsGyEtgntE4/PUCKrPq3dx0Kt91v41LNvBBrsKHzLHHuP4
+    secure: Kh2+SrNTZFAfPGEXtlNtjpCHRUs92HxoBvFFJHlIu58pKHWYrl1BFc0p/EiEDRpi
 
   artifact: /.*\.nupkg/
