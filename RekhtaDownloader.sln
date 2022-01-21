@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26124.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31729.503
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RekhtaDownloader", "src\RekhtaDownloader\RekhtaDownloader.csproj", "{041A2099-CFC4-4814-A6CA-0C3CC4FCD78D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RekhtaDownloader", "src\RekhtaDownloader\RekhtaDownloader.csproj", "{041A2099-CFC4-4814-A6CA-0C3CC4FCD78D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RekhtaDownloader.Tests", "src\RekhtaDownloader.Tests\RekhtaDownloader.Tests.csproj", "{F2858A78-03D0-4EA3-B5E6-8E88973A8633}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,9 +15,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{041A2099-CFC4-4814-A6CA-0C3CC4FCD78D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -30,5 +29,23 @@ Global
 		{041A2099-CFC4-4814-A6CA-0C3CC4FCD78D}.Release|x64.Build.0 = Release|Any CPU
 		{041A2099-CFC4-4814-A6CA-0C3CC4FCD78D}.Release|x86.ActiveCfg = Release|Any CPU
 		{041A2099-CFC4-4814-A6CA-0C3CC4FCD78D}.Release|x86.Build.0 = Release|Any CPU
+		{F2858A78-03D0-4EA3-B5E6-8E88973A8633}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2858A78-03D0-4EA3-B5E6-8E88973A8633}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2858A78-03D0-4EA3-B5E6-8E88973A8633}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F2858A78-03D0-4EA3-B5E6-8E88973A8633}.Debug|x64.Build.0 = Debug|Any CPU
+		{F2858A78-03D0-4EA3-B5E6-8E88973A8633}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F2858A78-03D0-4EA3-B5E6-8E88973A8633}.Debug|x86.Build.0 = Debug|Any CPU
+		{F2858A78-03D0-4EA3-B5E6-8E88973A8633}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2858A78-03D0-4EA3-B5E6-8E88973A8633}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2858A78-03D0-4EA3-B5E6-8E88973A8633}.Release|x64.ActiveCfg = Release|Any CPU
+		{F2858A78-03D0-4EA3-B5E6-8E88973A8633}.Release|x64.Build.0 = Release|Any CPU
+		{F2858A78-03D0-4EA3-B5E6-8E88973A8633}.Release|x86.ActiveCfg = Release|Any CPU
+		{F2858A78-03D0-4EA3-B5E6-8E88973A8633}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F99A5560-723E-4057-A172-70624BFCEA7C}
 	EndGlobalSection
 EndGlobal
