@@ -82,7 +82,7 @@ namespace RekhtaDownloader
             {
                 new RetryPolicyProvider(_logger).PageRetryPolicy.ExecuteAsync(async () =>
                 {
-                    var data = await HttpHelper.GetTextBody($"https://ebooksapi.rekhta.org/api_getebookpagebyid?atky=pns&pgi={page.PageId}");
+                    var data = await HttpHelper.GetTextBody($"https://ebooksapi.rekhta.org/api_getebookpagebyid/?autky=rek2020&pgid={page.PageId}");
                     page.PageData = JsonConvert.DeserializeObject<PageData>(data);
 
                     var pageImage = await HttpHelper.GetImage($"https://ebooksapi.rekhta.org/images/{_bookId}/{page.FileName}");
