@@ -6,7 +6,7 @@ A library to download books from rekhta website.
 
 [![Build status](https://ci.appveyor.com/api/projects/status/j6psbb2mlycchsl7/branch/master?svg=true)](https://ci.appveyor.com/project/umerfaruk/rekhtadownloader)
 
-![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/RekhtaDownloader)
+[![NuGet version](https://img.shields.io/nuget/v/RekhtaDownloader.svg)](https://www.nuget.org/packages/RekhtaDownloader/)
 
 
 ## Usage
