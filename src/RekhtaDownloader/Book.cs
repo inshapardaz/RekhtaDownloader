@@ -14,6 +14,7 @@ namespace RekhtaDownloader
 {
     internal class Book
     {
+        private const string authKey = "eyJpdiI6Im8zeXprNC83TDAxbmFmekI1Q01MU3c9PSIsInZhbHVlIjoiYTdudnFSNDVtNlVFcjNaSUZ4WTNIUT09IiwibWFjIjoiODQzZDJjNDE3OTY3OTgyZjA5OWIzNjc2NDU2MGYyNWFhYmVmYTliNjMzMjM1ODgzOWJmMjVjZTdlZjgwMzBkZiJ9";
         private readonly List<Page> _pages = new List<Page>();
 
         private readonly BlockingCollection<Page> _jobs = new BlockingCollection<Page>();
@@ -82,7 +83,7 @@ namespace RekhtaDownloader
             {
                 new RetryPolicyProvider(_logger).PageRetryPolicy.ExecuteAsync(async () =>
                 {
-                    var data = await HttpHelper.GetTextBody($"https://ebooksapi.rekhta.org/api_getebookpagebyid/?autky=rek2020&pgid={page.PageId}");
+                    var data = await HttpHelper.GetTextBody($"https://ebooksapi.rekhta.org/api_getebookpagebyid/?autky={authKey}&pgid={page.PageId}");
                     page.PageData = JsonConvert.DeserializeObject<PageData>(data);
 
                     var pageImage = await HttpHelper.GetImage($"https://ebooksapi.rekhta.org/images/{_bookId}/{page.FileName}");
