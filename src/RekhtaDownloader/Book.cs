@@ -14,13 +14,14 @@ namespace RekhtaDownloader
 {
     internal class Book
     {
-        private const string authKey = "eyJpdiI6Im8zeXprNC83TDAxbmFmekI1Q01MU3c9PSIsInZhbHVlIjoiYTdudnFSNDVtNlVFcjNaSUZ4WTNIUT09IiwibWFjIjoiODQzZDJjNDE3OTY3OTgyZjA5OWIzNjc2NDU2MGYyNWFhYmVmYTliNjMzMjM1ODgzOWJmMjVjZTdlZjgwMzBkZiJ9";
         private readonly List<Page> _pages = new List<Page>();
 
         private readonly BlockingCollection<Page> _jobs = new BlockingCollection<Page>();
 
         private readonly string _bookUrl;
         private readonly int _threadCount;
+        private readonly string _authkeyName;
+        private readonly string _authKey;
         private readonly ILogger _logger;
         private readonly CancellationToken _cancellationToken;
 
@@ -38,10 +39,12 @@ namespace RekhtaDownloader
 
         private string _outputDirectory = String.Empty;
 
-        public Book(string bookUrl, int threadCount, ILogger logger, CancellationToken cancellationToken)
+        public Book(string bookUrl, int threadCount, string authkeyName, string authKey, ILogger logger, CancellationToken cancellationToken)
         {
             _bookUrl = bookUrl;
             _threadCount = threadCount;
+            _authkeyName = authkeyName;
+            _authKey = authKey;
             _logger = logger;
             _cancellationToken = cancellationToken;
         }
@@ -83,7 +86,7 @@ namespace RekhtaDownloader
             {
                 new RetryPolicyProvider(_logger).PageRetryPolicy.ExecuteAsync(async () =>
                 {
-                    var data = await HttpHelper.GetTextBody($"https://ebooksapi.rekhta.org/api_getebookpagebyid/?autky={authKey}&pgid={page.PageId}");
+                    var data = await HttpHelper.GetTextBody($"https://ebooksapi.rekhta.org/api_getebookpagebyid/?{_authkeyName}={_authKey}&pgid={page.PageId}");
                     page.PageData = JsonConvert.DeserializeObject<PageData>(data);
 
                     var pageImage = await HttpHelper.GetImage($"https://ebooksapi.rekhta.org/images/{_bookId}/{page.FileName}");
