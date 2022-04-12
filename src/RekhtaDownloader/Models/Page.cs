@@ -19,5 +19,7 @@ namespace RekhtaDownloader.Models
         public  string PageImagePath { get; set; }
 
         public int PageIndex => int.Parse(Path.GetFileNameWithoutExtension(this.PageNumber) ?? throw new InvalidOperationException($"{PageNumber} is not a number"));
+
+        public string FolderName { get; internal set; }
     }
 }

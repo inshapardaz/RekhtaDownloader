@@ -20,8 +20,8 @@ namespace RekhtaDownloader
 
         private readonly string _bookUrl;
         private readonly int _threadCount;
-        private readonly string _authkeyName;
-        private readonly string _authKey;
+        private readonly string _authkeyName = "authtknkey";
+        private string _authKey;
         private readonly ILogger _logger;
         private readonly CancellationToken _cancellationToken;
 
@@ -39,12 +39,10 @@ namespace RekhtaDownloader
 
         private string _outputDirectory = String.Empty;
 
-        public Book(string bookUrl, int threadCount, string authkeyName, string authKey, ILogger logger, CancellationToken cancellationToken)
+        public Book(string bookUrl, int threadCount, ILogger logger, CancellationToken cancellationToken)
         {
             _bookUrl = bookUrl;
             _threadCount = threadCount;
-            _authkeyName = authkeyName;
-            _authKey = authKey;
             _logger = logger;
             _cancellationToken = cancellationToken;
         }
@@ -52,7 +50,9 @@ namespace RekhtaDownloader
         public async Task DownloadBook(string outputPath)
         {
             var pageContents = await HttpHelper.GetTextBody(_bookUrl);
-            _bookId = FindTextBetween(pageContents, "var bookId = ", ";")?.Trim().Trim('"', '\'');
+            _authKey = FindTextBetween(pageContents, "api_getebookpagebyid/?authtknkey=", "&")?.Trim().Trim('"', '\'');
+            _bookId = FindTextBetween(pageContents, "&bookid=", "&pgid=")?.Trim().Trim('"', '\'');
+            var imageFoldername = FindTextBetween(pageContents, "Critique_id = \"", ";")?.Trim().Trim('"', '\'');
             _logger.Log($"Book Id : {_bookId}");
 
             var actualUrl = FindTextBetween(pageContents, "var actualUrl =", ";")?.Trim().Trim('"', '\'');
@@ -62,7 +62,7 @@ namespace RekhtaDownloader
             _pageCount = int.Parse(FindTextBetween(pageContents, "var totalPageCount =", ";")?.Trim().Trim('"', '\'') ?? throw new InvalidOperationException("Unable to parse total page count"));
             _logger.Log($"Page Count: {_pageCount}");
 
-            _outputDirectory = Path.Combine(outputPath, _bookId.ToSafeFilename());
+            _outputDirectory = Path.Combine(outputPath, imageFoldername.ToSafeFilename());
 
             _outputDirectory.EnsureEmptyDirectory();
 
@@ -73,7 +73,7 @@ namespace RekhtaDownloader
 
             for (var i = 0; i < _pageCount; i++)
             {
-                _jobs.Add(new Page { PageId = pageIds[i], PageNumber = Path.GetFileNameWithoutExtension(pages[i]), FileName = pages[i] });
+                _jobs.Add(new Page { PageId = pageIds[i], FolderName = imageFoldername,  PageNumber = Path.GetFileNameWithoutExtension(pages[i]), FileName = pages[i] });
             }
 
             _jobs.CompleteAdding();
@@ -86,10 +86,10 @@ namespace RekhtaDownloader
             {
                 new RetryPolicyProvider(_logger).PageRetryPolicy.ExecuteAsync(async () =>
                 {
-                    var data = await HttpHelper.GetTextBody($"https://ebooksapi.rekhta.org/api_getebookpagebyid/?{_authkeyName}={_authKey}&pgid={page.PageId}");
+                    var data = await HttpHelper.GetTextBody($"https://ebooksapi.rekhta.org/api_getebookpagebyid/?{_authkeyName}={_authKey}&bookid={_bookId}&pgid={page.PageId}");
                     page.PageData = JsonConvert.DeserializeObject<PageData>(data);
 
-                    var pageImage = await HttpHelper.GetImage($"https://ebooksapi.rekhta.org/images/{_bookId}/{page.FileName}");
+                    var pageImage = await HttpHelper.GetImage($"https://ebooksapi.rekhta.org/images/{page.FolderName}/{page.FileName}");
                     pageImage = ImageHelper.RearrangeImage(pageImage, page.PageData);
 
                     var filePath = Path.Combine(_outputDirectory, page.FileName);
