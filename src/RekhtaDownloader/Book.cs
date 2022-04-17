@@ -51,7 +51,7 @@ namespace RekhtaDownloader
         {
             var pageContents = await HttpHelper.GetTextBody(_bookUrl);
             _authKey = FindTextBetween(pageContents, "api_getebookpagebyid/?authtknkey=", "&")?.Trim().Trim('"', '\'');
-            _bookId = FindTextBetween(pageContents, "&bookid=", "&pgid=")?.Trim().Trim('"', '\'');
+            _bookId = FindTextBetween(pageContents, "&bookid=", "&")?.Trim().Trim('"', '\'');
             var imageFoldername = FindTextBetween(pageContents, "Critique_id = \"", ";")?.Trim().Trim('"', '\'');
             _logger.Log($"Book Id : {_bookId}");
 
@@ -73,7 +73,7 @@ namespace RekhtaDownloader
 
             for (var i = 0; i < _pageCount; i++)
             {
-                _jobs.Add(new Page { PageId = pageIds[i], FolderName = imageFoldername,  PageNumber = Path.GetFileNameWithoutExtension(pages[i]), FileName = pages[i] });
+                _jobs.Add(new Page { Index = i, PageId = pageIds[i], FolderName = imageFoldername, PageNumber = Path.GetFileNameWithoutExtension(pages[i]), FileName = pages[i] }); ;
             }
 
             _jobs.CompleteAdding();
@@ -86,7 +86,8 @@ namespace RekhtaDownloader
             {
                 new RetryPolicyProvider(_logger).PageRetryPolicy.ExecuteAsync(async () =>
                 {
-                    var data = await HttpHelper.GetTextBody($"https://ebooksapi.rekhta.org/api_getebookpagebyid/?{_authkeyName}={_authKey}&bookid={_bookId}&pgid={page.PageId}");
+                    var cidx = page.Index > 0 ? (page.Index % 2 == 0 ? page.Index : page.Index - 1) : 1;
+                    var data = await HttpHelper.GetTextBody($"https://ebooksapi.rekhta.org/api_getebookpagebyid/?{_authkeyName}={_authKey}&bookid={_bookId}&cidx={cidx}&pgid={page.PageId}");
                     page.PageData = JsonConvert.DeserializeObject<PageData>(data);
 
                     var pageImage = await HttpHelper.GetImage($"https://ebooksapi.rekhta.org/images/{page.FolderName}/{page.FileName}");
@@ -113,7 +114,7 @@ namespace RekhtaDownloader
         private string FindTextBetween(string source, string start, string end)
         {
             var startIndex = source.IndexOf(start);
-            var endIndex = source.IndexOf(end, startIndex);
+            var endIndex = source.IndexOf(end, startIndex + 1);
             return source.Substring(startIndex + start.Length, endIndex - startIndex - start.Length);
         }
 

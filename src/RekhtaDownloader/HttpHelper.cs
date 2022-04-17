@@ -15,7 +15,7 @@ namespace RekhtaDownloader
             HttpWebRequest myRequest = (HttpWebRequest)WebRequest.Create(url);
             myRequest.Method = "GET";
             myRequest.Accept = "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9";
-            myRequest.Referer = "https://www.rekhta.org/ebooks";
+            myRequest.Referer = "https://www.rekhta.org/";
 
             WebResponse myResponse = await myRequest.GetResponseAsync();
             StreamReader sr = new StreamReader(myResponse.GetResponseStream(), Encoding.UTF8);
