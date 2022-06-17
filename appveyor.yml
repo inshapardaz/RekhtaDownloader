@@ -46,6 +46,6 @@ deploy:
   auth_token:
     secure: 7cX2R70WNddZEEbKten7+pAkSoxVGKaUzgpqWSAQmjI+778DgoWAW976patWQOPP
   repository: inshapardaz/RekhtaDownloader
-  artifact: downloader.zip
+  artifact: downloader.zip, downloader-x64.zip
   on:
     branch: master
