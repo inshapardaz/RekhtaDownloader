@@ -20,8 +20,6 @@ namespace RekhtaDownloader
 
         private readonly string _bookUrl;
         private readonly int _threadCount;
-        private readonly string _authkeyName = "authtknkey";
-        private string _authKey;
         private readonly ILogger _logger;
         private readonly CancellationToken _cancellationToken;
 
@@ -50,7 +48,6 @@ namespace RekhtaDownloader
         public async Task DownloadBook(string outputPath)
         {
             var pageContents = await HttpHelper.GetTextBody(_bookUrl);
-            _authKey = FindTextBetween(pageContents, "api_getebookpagebyid/?authtknkey=", "&")?.Trim().Trim('"', '\'');
             _bookId = FindTextBetween(pageContents, "&bookid=", "&")?.Trim().Trim('"', '\'');
             var imageFoldername = FindTextBetween(pageContents, "Critique_id = \"", ";")?.Trim().Trim('"', '\'');
             _logger.Log($"Book Id : {_bookId}");
@@ -87,7 +84,7 @@ namespace RekhtaDownloader
                 new RetryPolicyProvider(_logger).PageRetryPolicy.ExecuteAsync(async () =>
                 {
                     var cidx = page.Index > 0 ? (page.Index % 2 == 0 ? page.Index : page.Index - 1) : 1;
-                    var data = await HttpHelper.GetTextBody($"https://ebooksapi.rekhta.org/api_getebookpagebyid/?{_authkeyName}={_authKey}&bookid={_bookId}&cidx={cidx}&pgid={page.PageId}");
+                    var data = await HttpHelper.GetTextBody($"https://www.rekhta.org/Home/GetEbookFromApi/?pgid={page.PageId}");
                     page.PageData = JsonConvert.DeserializeObject<PageData>(data);
 
                     var pageImage = await HttpHelper.GetImage($"https://ebooksapi.rekhta.org/images/{page.FolderName}/{page.FileName}");
