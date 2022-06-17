@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Downloader": {
+      "commandName": "Project",
+      "commandLineArgs": "--url https://www.rekhta.org/ebooks/mirat-ul-uroos-deputy-naziir-ahmad-ebooks?lang=ur"
+    }
+  }
+}

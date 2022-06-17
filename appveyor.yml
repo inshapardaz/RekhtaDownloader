@@ -11,11 +11,25 @@ build_script:
 
     dotnet pack .\src\RekhtaDownloader\RekhtaDownloader.csproj  --configuration release  -P:PackageVersion=%APPVEYOR_BUILD_VERSION%
 
+    dotnet publish .\src\RekhtaDownloader.Console\RekhtaDownloader.Console.csproj -r win-x64 -c Release --self-contained
+
+    7z a downloader-x64.zip .\src\RekhtaDownloader.Console\bin\Release\net6.0\win-x64\publish\*
+
+    dotnet publish .\src\RekhtaDownloader.Console/RekhtaDownloader.Console.csproj -r win-x86 -c Release --self-contained
+
+    7z a downloader.zip .\src\RekhtaDownloader.Console\bin\Release\net6.0\win-x86\publish\*
+
 artifacts:
 
 - path: '**\*.nupkg'
-
   name: NugetPackage
+
+- path: downloader-x64.zip
+  name: Downloader(x64)
+
+- path: downloader.zip
+  name: Downloader
+
 
 deploy:
 
