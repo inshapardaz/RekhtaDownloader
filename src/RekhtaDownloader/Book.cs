@@ -23,8 +23,6 @@ namespace RekhtaDownloader
         private readonly ILogger _logger;
         private readonly CancellationToken _cancellationToken;
 
-        private string _bookId;
-
         private int _pageCount;
 
         public string BookName { get; private set; }
@@ -48,10 +46,8 @@ namespace RekhtaDownloader
         public async Task DownloadBook(string outputPath)
         {
             var pageContents = await HttpHelper.GetTextBody(_bookUrl);
-            _bookId = FindTextBetween(pageContents, "&bookid=", "&")?.Trim().Trim('"', '\'');
             var imageFoldername = FindTextBetween(pageContents, "Critique_id = \"", ";")?.Trim().Trim('"', '\'');
-            _logger.Log($"Book Id : {_bookId}");
-
+            
             var actualUrl = FindTextBetween(pageContents, "var actualUrl =", ";")?.Trim().Trim('"', '\'');
             BookName = actualUrl?.ToLower().Replace("/ebooks/", "").Trim().Trim('/', '\\');
             _logger.Log($"Book Name : {BookName}");
