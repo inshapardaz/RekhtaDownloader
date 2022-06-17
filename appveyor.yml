@@ -2,6 +2,8 @@ version: 1.0.{build}
 
 image: Visual Studio 2022
 
+skip_tags: true
+
 environment:
   publish_key:
     secure: 7cX2R70WNddZEEbKten7+pAkSoxVGKaUzgpqWSAQmjI+778DgoWAW976patWQOPP
@@ -23,7 +25,6 @@ build_script:
     7z a downloader.zip .\src\RekhtaDownloader.Console\bin\Release\net6.0\win-x86\publish\*
 
 artifacts:
-
 - path: '**\*.nupkg'
   name: NugetPackage
 
