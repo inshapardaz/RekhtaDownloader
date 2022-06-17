@@ -9,6 +9,9 @@ environment:
 build_script:
 
 - cmd: >-
+
+    dotnet build  -c Release
+    
     dotnet pack .\src\RekhtaDownloader\RekhtaDownloader.csproj  --configuration release  -P:PackageVersion=%APPVEYOR_BUILD_VERSION%
 
     dotnet publish .\src\RekhtaDownloader.Console\RekhtaDownloader.Console.csproj -r win-x64 -c Release --self-contained
