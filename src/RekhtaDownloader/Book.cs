@@ -25,6 +25,7 @@ namespace RekhtaDownloader
 
         private int _pageCount;
 
+        public string BookId { get; set; }
         public string BookName { get; private set; }
 
         public IEnumerable<Page> Pages => _pages.OrderBy(p => p.PageIndex);
@@ -48,6 +49,7 @@ namespace RekhtaDownloader
             var pageContents = await HttpHelper.GetTextBody(_bookUrl);
             var imageFoldername = FindTextBetween(pageContents, "Critique_id = \"", ";")?.Trim().Trim('"', '\'');
             
+            BookId = FindTextBetween(pageContents, "var actualUrl =", ";")?.Trim().Trim('"', '\'');
             var actualUrl = FindTextBetween(pageContents, "var actualUrl =", ";")?.Trim().Trim('"', '\'');
             BookName = actualUrl?.ToLower().Replace("/ebooks/", "").Trim().Trim('/', '\\');
             _logger.Log($"Book Name : {BookName}");
@@ -80,7 +82,7 @@ namespace RekhtaDownloader
                 new RetryPolicyProvider(_logger).PageRetryPolicy.ExecuteAsync(async () =>
                 {
                     var cidx = page.Index > 0 ? (page.Index % 2 == 0 ? page.Index : page.Index - 1) : 1;
-                    var data = await HttpHelper.GetTextBody($"https://www.rekhta.org/Home/GetEbookFromApi/?pgid={page.PageId}");
+                    var data = await HttpHelper.GetTextBody($"https://www.rekhta.org/Home/GetEbookFromApi/?pgid={page.PageId}&bkId={BookId}&pgIdx={page.Index}");
                     page.PageData = JsonConvert.DeserializeObject<PageData>(data);
 
                     var pageImage = await HttpHelper.GetImage($"https://ebooksapi.rekhta.org/images/{page.FolderName}/{page.FileName}");
