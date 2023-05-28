@@ -18,7 +18,7 @@ namespace RekhtaDownloader
 
         private readonly BlockingCollection<Page> _jobs = new BlockingCollection<Page>();
 
-        private readonly string _bookUrl;
+        private string _bookUrl;
         private readonly int _threadCount;
         private readonly ILogger _logger;
         private readonly CancellationToken _cancellationToken;
@@ -46,6 +46,7 @@ namespace RekhtaDownloader
 
         public async Task<BookInfo> GetBookInformation()
         {
+            await CheckDetailsPageAndResolveBookPage();
             var pageContents = await HttpHelper.GetTextBody(_bookUrl);
             var document = new HtmlAgilityPack.HtmlDocument();
             document.LoadHtml(pageContents);
@@ -89,6 +90,7 @@ namespace RekhtaDownloader
 
         public async Task DownloadBook(string outputPath)
         {
+            await CheckDetailsPageAndResolveBookPage();
             var pageContents = await HttpHelper.GetTextBody(_bookUrl);
             var imageFoldername = FindTextBetween(pageContents, "Critique_id = \"", ";")?.Trim().Trim('"', '\'');
 
@@ -116,6 +118,28 @@ namespace RekhtaDownloader
 
             _jobs.CompleteAdding();
             Task.WaitAll(tasks.ToArray(), _cancellationToken);
+        }
+
+        private async Task CheckDetailsPageAndResolveBookPage()
+        {
+            if (_bookUrl.Contains("/ebooks/detail/"))
+            {
+                Console.WriteLine("Warning: Url Provided is for the book details page. " +
+                    "I will try to resolve the book page URL from it." +
+                    "If I fail to do so please use the correct url for book page, where you can see the book pages to read.");
+
+                var pageContents = await HttpHelper.GetTextBody(_bookUrl);
+
+                var document = new HtmlAgilityPack.HtmlDocument();
+                document.LoadHtml(pageContents);
+                var docNode = document.DocumentNode;
+                var href = docNode.QuerySelector(".ebkDtlScl .rReadMore")?.GetAttributeValue("href", null);
+
+                if (href != null)
+                {
+                    _bookUrl = href;
+                }
+            }
         }
 
         private void DownloadPage()
