@@ -1,76 +1,58 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using RekhtaDownloader;
-using Microsoft.Extensions.CommandLineUtils;
+using System.CommandLine;
 using Common;
 
 namespace Downloader
 {
-    internal class Program
+    public class Program
     {
-        private static void Main(string[] args)
+        public static async Task<int> Main(string[] args)
         {
-            CommandLineApplication commandLineApplication = new CommandLineApplication(throwOnUnexpectedArg: false);
-            commandLineApplication.Name = "Rekhta download tool";
-            commandLineApplication.Description = "To download the rekhta books";
-            commandLineApplication.HelpOption("-? | -h | --help");
+            var urlOption = new Option<string>(
+                name: "--url",
+                description: "Url the book page where you can read the book contents.")
+                { IsRequired = true };
+            urlOption.AddAlias("-u");
 
-            CommandOption bookUrl = commandLineApplication.Option("-u |--url",
-                                                                  "Book url to download. Click on book on site and copy the url from top.",
-                                                                  CommandOptionType.SingleValue);
+            var tasksOption = new Option<int>(
+                name: "--tasks",
+                description: "Number of parallel pages to get. Default will be 10 pages.",
+                getDefaultValue: () => 10);
+            tasksOption.AddAlias("-t");
 
-            CommandOption taskCount = commandLineApplication.Option("-t |--tasks",
-                                                                    "Number of parallel pages to get. Default will be 10 pages",
-                                                                    CommandOptionType.SingleValue);
+            var outputOption = new Option<OutputType>(
+                name: "--output",
+                description: "Type of output to be generated. Options are pdf and ",
+                getDefaultValue: () => OutputType.Pdf);
+            outputOption.AddAlias("-o");
 
-            CommandOption outputType = commandLineApplication.Option("-o |--output",
-                                                                  "Type of output. Possible values are 'pdf' and 'image'. Default is pdf",
-                                                                  CommandOptionType.SingleValue);
 
-            commandLineApplication.OnExecute(async () =>
+            var rootCommand = new RootCommand("Rekhta download tool to download the rekhta books.");
+            rootCommand.AddOption(urlOption);
+            rootCommand.AddOption(tasksOption);
+            rootCommand.AddOption(outputOption);
+
+            rootCommand.SetHandler(async (context) =>
             {
-                using var tokenSource = new CancellationTokenSource();
-                var token = tokenSource.Token;
-                if (bookUrl.HasValue())
-                {
-                    if (!int.TryParse(taskCount.Value(), out var tasks))
-                    {
-                        tasks = 10;
-                    }
+                string url = context.ParseResult.GetValueForOption(urlOption);
+                int tasks= context.ParseResult.GetValueForOption(tasksOption);
+                OutputType output = context.ParseResult.GetValueForOption(outputOption);
+                var token = context.GetCancellationToken();
 
-                    var output = OutputType.Pdf;
-                    if (outputType.HasValue())
-                    {
-                        switch (outputType.Value().ToLower())
-                        {
-                            case "pdf":
-                                output = OutputType.Pdf;
-                                break;
-
-                            case "image":
-                                output = OutputType.Images;
-                                break;
-
-                            default:
-                                commandLineApplication.ShowHelp();
-                                return 0;
-                        }
-                    }
-
-                    await DownloadBook(bookUrl.Value(), tasks, output, token);
-                    return 0;
-                }
-
-                commandLineApplication.ShowHelp();
-                return 0;
+                await DownloadBook(url, tasks, output, token);
             });
 
-            commandLineApplication.Execute(args);
+            await rootCommand.InvokeAsync(args);
+
+            return 0;
         }
 
         private static async Task DownloadBook(string bookUrl, int taskCount, OutputType outputType, CancellationToken token)
         {
             //var bookUrl = "https://rekhta.org/ebooks/alfaz-shumara-number-000-jameel-akhtar-magazines-7/";
+
             await new BookExporter(new ConsoleLogger()).DownloadBook(bookUrl, taskCount, outputType);
         }
     }
