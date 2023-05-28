@@ -55,5 +55,13 @@ namespace RekhtaDownloader
                 return bitmap;
             }
         }
+        public static byte[] ToByteArray(this Bitmap img)
+        {
+            using (var stream = new MemoryStream())
+            {
+                img.Save(stream, ImageFormat.Jpeg);
+                return stream.ToArray();
+            }
+        }
     }
 }

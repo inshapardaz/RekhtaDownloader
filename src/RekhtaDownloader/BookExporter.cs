@@ -9,6 +9,7 @@ using iText.IO.Image;
 using iText.Kernel.Geom;
 using iText.Kernel.Pdf;
 using iText.Layout;
+using RekhtaDownloader.Models;
 using Image = iText.Layout.Element.Image;
 using Path = System.IO.Path;
 
@@ -23,7 +24,13 @@ namespace RekhtaDownloader
             _logger = logger;
         }
 
-        public async Task<string> DownloadBook(string bookUrl, int taskCount, OutputType output, string outputPath = null, CancellationToken token = default(CancellationToken))
+        public async Task<BookInfo> GetBookInformation(string bookUrl, CancellationToken token = default(CancellationToken))
+        {
+            var book = new Book(bookUrl, 1, _logger, token);
+            return await book.GetBookInformation();
+        }
+
+        public async Task<string> DownloadBook(string bookUrl, int taskCount = 10, OutputType output = OutputType.Pdf, string outputPath = null, CancellationToken token = default(CancellationToken))
         {
             var book = new Book(bookUrl, taskCount, _logger, token);
             var workingFolder = outputPath ?? Environment.CurrentDirectory;

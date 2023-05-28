@@ -44,11 +44,54 @@ namespace RekhtaDownloader
             _cancellationToken = cancellationToken;
         }
 
+        public async Task<BookInfo> GetBookInformation()
+        {
+            var pageContents = await HttpHelper.GetTextBody(_bookUrl);
+            var document = new HtmlAgilityPack.HtmlDocument();
+            document.LoadHtml(pageContents);
+            var docNode = document.DocumentNode;
+            var title = docNode.QuerySelector(".AddInfoWrap > .B-descript > h5")?.InnerText?.Trim();
+            var imageUrl = docNode.QuerySelector(".AddInfoWrap > .addINFOimg > img")?.GetAttributeValue<string>("src", null);
+            var bookinfo = new BookInfo
+            {
+                Title = title,
+            };
+            if (!string.IsNullOrWhiteSpace(imageUrl))
+            {
+                var bitmap = await HttpHelper.GetImage(imageUrl);
+                bookinfo.Image = bitmap.ToByteArray();
+            }
+            var infos = docNode.QuerySelectorAll(".AddInfoWrap > .B-descript > ul > li");
+            foreach (var item in infos)
+            {
+                var type = item?.InnerText?.Trim();
+
+                if (type.Contains("AUTHOR"))
+                {
+                    bookinfo.Authors = new[] { item.QuerySelector("p > span > a")?.NextSibling?.InnerText?.Trim() };
+                }
+                else if(type.Contains("PUBLISHER"))
+                {
+                    bookinfo.Publisher = item.QuerySelector("p > span")?.InnerText?.Trim();
+                }
+                else if (type.Contains("YEAR"))
+                {
+                    var yearText = item.QuerySelector("p > span")?.InnerText?.Trim();
+                    if (int.TryParse(yearText, out var year))
+                    {
+                        bookinfo.Year = year;
+                    }
+                }
+            }
+
+            return bookinfo;
+        }
+
         public async Task DownloadBook(string outputPath)
         {
             var pageContents = await HttpHelper.GetTextBody(_bookUrl);
             var imageFoldername = FindTextBetween(pageContents, "Critique_id = \"", ";")?.Trim().Trim('"', '\'');
-            
+
             BookId = FindTextBetween(pageContents, "var actualUrl =", ";")?.Trim().Trim('"', '\'');
             var actualUrl = FindTextBetween(pageContents, "var actualUrl =", ";")?.Trim().Trim('"', '\'');
             BookName = actualUrl?.ToLower().Replace("/ebooks/", "").Trim().Trim('/', '\\');
