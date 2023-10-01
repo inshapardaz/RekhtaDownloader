@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Common;
+using HtmlAgilityPack.CssSelectors.NetCore;
 using Newtonsoft.Json;
 using RekhtaDownloader.Models;
 
