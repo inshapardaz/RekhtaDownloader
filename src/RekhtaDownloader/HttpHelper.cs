@@ -1,10 +1,8 @@
-﻿using System;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
+﻿using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using SkiaSharp;
 
 namespace RekhtaDownloader
 {
@@ -26,7 +24,7 @@ namespace RekhtaDownloader
             return result;
         }
 
-        public static async Task<Bitmap> GetImage(string imageUrl)
+        public static async Task<SKImage> GetImage(string imageUrl)
         {
             var webRequest = (HttpWebRequest)WebRequest.Create(imageUrl);
             webRequest.AllowWriteStreamBuffering = true;
@@ -36,7 +34,7 @@ namespace RekhtaDownloader
             {
                 using (var stream = webResponse.GetResponseStream())
                 {
-                    return new Bitmap(stream);
+                    return SKImage.FromEncodedData(stream);
                 }
             }
         }

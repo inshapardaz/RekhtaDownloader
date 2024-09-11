@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -149,7 +148,6 @@ namespace RekhtaDownloader
             {
                 new RetryPolicyProvider(_logger).PageRetryPolicy.ExecuteAsync(async () =>
                 {
-                    var cidx = page.Index > 0 ? (page.Index % 2 == 0 ? page.Index : page.Index - 1) : 1;
                     var data = await HttpHelper.GetTextBody($"https://www.rekhta.org/Home/GetEbookFromApi/?pgid={page.PageId}&bkId={BookId}&pgIdx={page.Index}");
                     page.PageData = JsonConvert.DeserializeObject<PageData>(data);
 
@@ -160,7 +158,7 @@ namespace RekhtaDownloader
                     _outputDirectory.CreateIfDirectoryDoesNotExists();
                     filePath.MakeSureFileDoesNotExist();
 
-                    pageImage.Save(filePath, ImageFormat.Jpeg);
+                    File.WriteAllBytes(filePath, pageImage.ToByteArray());
 
                     page.PageImagePath = filePath;
 

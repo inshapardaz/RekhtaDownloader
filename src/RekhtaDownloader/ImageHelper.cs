@@ -1,22 +1,26 @@
-﻿using System;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
-using System.IO;
-using RekhtaDownloader.Models;
+﻿using RekhtaDownloader.Models;
+using SkiaSharp;
 
 namespace RekhtaDownloader
 {
     internal static class ImageHelper
     {
-        public static Bitmap RearrangeImage(Bitmap source, PageData data)
+        public static SKImage RearrangeImage(SKImage source, PageData data)
         {
             var cellSize = 50;
             var borderWidth = 16;
-            var target = new Bitmap(data.PageWidth > 0 ? data.PageWidth : source.Width,
-                                    data.PageHeight > 0 ? data.PageHeight : source.Height);
-            using (var gt = Graphics.FromImage(target))
+            using (var surface = SKSurface.Create(new SKImageInfo
+                   {
+                       Width = data.PageWidth > 0 ? data.PageWidth : source.Width,
+                       Height = data.PageHeight > 0 ? data.PageHeight : source.Height,
+                       ColorType = SKImageInfo.PlatformColorType,
+                       AlphaType = SKAlphaType.Premul
+                   }))
+            using (var paint = new SKPaint())
             {
+                paint.IsAntialias = true;
+                paint.FilterQuality = SKFilterQuality.High;
+
                 foreach (var sub in data.Sub)
                 {
                     int sourceX = (sub.X1 * cellSize) + (sub.X1 * borderWidth);
@@ -24,44 +28,45 @@ namespace RekhtaDownloader
                     int targetX = (sub.X2 * cellSize);
                     int targetY = (sub.Y2 * cellSize);
 
-                    Rectangle sourceRectangle = new Rectangle(sourceX, sourceY, cellSize + borderWidth, cellSize + borderWidth);
-                    Rectangle targetRectangle = new Rectangle(targetX, targetY, cellSize + borderWidth, cellSize + borderWidth);
-                    gt.DrawImage(source, targetRectangle, sourceRectangle, GraphicsUnit.Pixel);
+                    var sourceRectangle = new SKRect(sourceX, sourceY, cellSize + borderWidth, cellSize + borderWidth);
+                    var targetRectangle = new SKRect(targetX, targetY, cellSize + borderWidth, cellSize + borderWidth);
+                    surface.Canvas.DrawImage(source, targetRectangle, sourceRectangle, paint);
                 }
 
-                gt.Flush();
+                surface.Canvas.Flush();
+                return surface.Snapshot();
             }
-
-            return target;
         }
 
-        public static Bitmap ResizeImage(int scaleFactor, Bitmap image)
+        public static SKImage ResizeImage(int scaleFactor, SKImage image)
         {
-            using (MemoryStream memoryStream = new MemoryStream())
+            int width = (int)(image.Width * ((double)scaleFactor / 10));
+            int height = (int)(image.Height * ((double)scaleFactor / 10));
+            using (var surface = SKSurface.Create(new SKImageInfo
+                   {
+                       Width = width,
+                       Height = height,
+                       ColorType = SKImageInfo.PlatformColorType,
+                       AlphaType = SKAlphaType.Premul
+                   }))
+            using (var paint = new SKPaint())
             {
-                int width = (int)(image.Width * ((double)scaleFactor / 10));
-                int height = (int)(image.Height * ((double)scaleFactor / 10));
-                Bitmap bitmap = new Bitmap(width, height);
-                using (Graphics graphics = Graphics.FromImage(bitmap))
+                paint.IsAntialias = true;
+                paint.FilterQuality = SKFilterQuality.High;
+
+                surface.Canvas.DrawImage(image, new SKRectI(0, 0, width, height), paint);
+                surface.Canvas.Flush();
+
+                using (var newImg = surface.Snapshot())
                 {
-                    graphics.CompositingQuality = CompositingQuality.HighQuality;
-
-                    graphics.SmoothingMode = SmoothingMode.HighQuality;
-                    graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                    Rectangle rect = new Rectangle(0, 0, width, height);
-                    graphics.DrawImage(image, rect);
-                    bitmap.Save(memoryStream, ImageFormat.Jpeg);
+                    return newImg;
                 }
-                return bitmap;
             }
         }
-        public static byte[] ToByteArray(this Bitmap img)
+
+        public static byte[] ToByteArray(this SKImage img)
         {
-            using (var stream = new MemoryStream())
-            {
-                img.Save(stream, ImageFormat.Jpeg);
-                return stream.ToArray();
-            }
+            return img.Encode().ToArray();
         }
     }
 }

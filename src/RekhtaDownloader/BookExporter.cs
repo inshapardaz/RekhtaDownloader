@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -10,6 +9,7 @@ using iText.Kernel.Geom;
 using iText.Kernel.Pdf;
 using iText.Layout;
 using RekhtaDownloader.Models;
+using SkiaSharp;
 using Image = iText.Layout.Element.Image;
 using Path = System.IO.Path;
 
@@ -72,7 +72,7 @@ namespace RekhtaDownloader
             pdfPath.MakeSureFileDoesNotExist();
 
             PageSize documentSize;
-            using (var firstImage = new Bitmap(firstPagePath))
+            using (var firstImage = SKImage.FromEncodedData(firstPagePath))
             {
                 documentSize = new PageSize(firstImage.Width, firstImage.Height);
             }
