@@ -1,5 +1,5 @@
 ﻿using System;
-using Common;
+using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.Retry;
 
@@ -15,8 +15,8 @@ namespace RekhtaDownloader
                                         retryAttempt => TimeSpan.FromSeconds(retryAttempt),
                                         (exception, timeSpan, retryCount, context) =>
                                         {
-                                            logger.Log($"Failed to download page. Retrying #{retryCount}...");
-                                            logger.Log(exception.Message);
+                                            logger.LogInformation($"Failed to download page. Retrying #{retryCount}...");
+                                            logger.LogInformation(exception.Message);
                                         });
         }
 

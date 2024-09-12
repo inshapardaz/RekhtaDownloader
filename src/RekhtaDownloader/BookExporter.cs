@@ -8,6 +8,7 @@ using iText.IO.Image;
 using iText.Kernel.Geom;
 using iText.Kernel.Pdf;
 using iText.Layout;
+using Microsoft.Extensions.Logging;
 using RekhtaDownloader.Models;
 using SkiaSharp;
 using Image = iText.Layout.Element.Image;
@@ -17,9 +18,9 @@ namespace RekhtaDownloader
 {
     public class BookExporter
     {
-        private readonly ILogger _logger;
+        private readonly ILogger<BookExporter> _logger;
 
-        public BookExporter(ILogger logger)
+        public BookExporter(ILogger<BookExporter> logger)
         {
             _logger = logger;
         }
@@ -39,7 +40,7 @@ namespace RekhtaDownloader
 
             if (!book.Pages.Any())
             {
-                _logger.Log("No pages were downloaded for book");
+                _logger.LogInformation("No pages were downloaded for book");
                 return null;
             }
 
@@ -62,11 +63,11 @@ namespace RekhtaDownloader
 
             if (string.IsNullOrWhiteSpace(firstPagePath))
             {
-                _logger.Log("No pages downloaded to create Pdf.");
+                _logger.LogInformation("No pages downloaded to create Pdf.");
                 return null;
             }
 
-            _logger.Log("Pages Downloaded. Creating Pdf...");
+            _logger.LogInformation("Pages Downloaded. Creating Pdf...");
 
             var pdfPath = Path.Combine(outputPath, book.BookName.ToSafeFilename() + ".pdf");
 
@@ -100,7 +101,7 @@ namespace RekhtaDownloader
 
             Path.GetDirectoryName(firstPagePath)?.TryDeleteDirectory();
 
-            _logger.Log($"Book saved as {pdfPath}");
+            _logger.LogInformation($"Book saved as {pdfPath}");
 
             return pdfPath;
         }
@@ -113,7 +114,7 @@ namespace RekhtaDownloader
             {
                 bookDir.EnsureEmptyDirectory();
 
-                _logger.Log($"Saving book pages in folder {bookDir}");
+                _logger.LogInformation($"Saving book pages in folder {bookDir}");
 
                 foreach (var page in book.Pages.OrderBy(p => p.PageIndex))
                 {
@@ -124,15 +125,13 @@ namespace RekhtaDownloader
 
                 Path.GetDirectoryName(book.Pages.First().PageImagePath).TryDeleteDirectory();
 
-                _logger.Log($"Book pages saved in folder {bookDir}");
+                _logger.LogInformation($"Book pages saved in folder {bookDir}");
 
                 return bookDir;
             }
             catch (Exception ex)
             {
-                _logger.Log(ex.Message);
-                _logger.Log(ex.StackTrace);
-                _logger.Log($"Error: Unable to copy pages to book folder. Pages were downloaded in {Path.GetDirectoryName(book.Pages.First().PageImagePath)}");
+                _logger.LogError(ex,  $"Error: Unable to copy pages to book folder. Pages were downloaded in {Path.GetDirectoryName(book.Pages.First().PageImagePath)}");
 
                 return null;
             }

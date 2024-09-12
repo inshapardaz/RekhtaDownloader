@@ -1,8 +1,4 @@
-﻿using System;
-using System.Drawing;
-using System.IO;
-
-namespace RekhtaDownloader.Models
+﻿namespace RekhtaDownloader.Models
 {
     public class BookInfo
     {

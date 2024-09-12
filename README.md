@@ -32,8 +32,3 @@ Integer value telling how many parallal threads to use for downloading book.
 3. OutputType
 
 Specifies the type of output wanted. Possible values are `OutputType.Pdf` and `OutputType.Images`. In case of Pdf the output will be created in the root folder of application with name same as name of book. Images will be stored in a folder with name matching book.
-
-
-### Logging
-
-Given example logs all output to the console. If you want to log output to some other destination, extend the [ILogger](src/RekhtaDownloader/ILogger.cs) interface and pass it in the constructor. 

@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Common;
 using HtmlAgilityPack.CssSelectors.NetCore;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RekhtaDownloader.Models;
 
@@ -25,12 +26,12 @@ namespace RekhtaDownloader
 
         private int _pageCount;
 
-        public string BookId { get; set; }
+        private string BookId { get; set; }
         public string BookName { get; private set; }
 
         public IEnumerable<Page> Pages => _pages.OrderBy(p => p.PageIndex);
 
-        private object _lock = new object();
+        private readonly object _lock = new object();
 
         private int _completeCount = 0;
 
@@ -92,17 +93,17 @@ namespace RekhtaDownloader
         {
             await CheckDetailsPageAndResolveBookPage();
             var pageContents = await HttpHelper.GetTextBody(_bookUrl);
-            var imageFoldername = FindTextBetween(pageContents, "Critique_id = \"", ";")?.Trim().Trim('"', '\'');
+            var imageFolderName = FindTextBetween(pageContents, "Critique_id = \"", ";")?.Trim().Trim('"', '\'');
 
             BookId = FindTextBetween(pageContents, "var actualUrl =", ";")?.Trim().Trim('"', '\'');
             var actualUrl = FindTextBetween(pageContents, "var actualUrl =", ";")?.Trim().Trim('"', '\'');
             BookName = actualUrl?.ToLower().Replace("/ebooks/", "").Trim().Trim('/', '\\');
-            _logger.Log($"Book Name : {BookName}");
+            _logger.LogInformation($"Book Name : {BookName}");
 
             _pageCount = int.Parse(FindTextBetween(pageContents, "var totalPageCount =", ";")?.Trim().Trim('"', '\'') ?? throw new InvalidOperationException("Unable to parse total page count"));
-            _logger.Log($"Page Count: {_pageCount}");
+            _logger.LogInformation($"Page Count: {_pageCount}");
 
-            _outputDirectory = Path.Combine(outputPath, imageFoldername.ToSafeFilename());
+            _outputDirectory = Path.Combine(outputPath, imageFolderName.ToSafeFilename());
 
             _outputDirectory.EnsureEmptyDirectory();
 
@@ -113,7 +114,7 @@ namespace RekhtaDownloader
 
             for (var i = 0; i < _pageCount; i++)
             {
-                _jobs.Add(new Page { Index = i, PageId = pageIds[i], FolderName = imageFoldername, PageNumber = Path.GetFileNameWithoutExtension(pages[i]), FileName = pages[i] }); ;
+                _jobs.Add(new Page { Index = i, PageId = pageIds[i], FolderName = imageFolderName, PageNumber = Path.GetFileNameWithoutExtension(pages[i]), FileName = pages[i] }, _cancellationToken);
             }
 
             _jobs.CompleteAdding();
@@ -166,7 +167,7 @@ namespace RekhtaDownloader
                     {
                         _pages.Add(page);
                         _completeCount++;
-                        _logger.Log($"Downloaded page {_completeCount} of {_pageCount}");
+                        _logger.LogInformation($"Downloaded page {_completeCount} of {_pageCount}");
                     }
                 }).Wait(_cancellationToken);
             }
@@ -174,8 +175,8 @@ namespace RekhtaDownloader
 
         private string FindTextBetween(string source, string start, string end)
         {
-            var startIndex = source.IndexOf(start);
-            var endIndex = source.IndexOf(end, startIndex + 1);
+            var startIndex = source.IndexOf(start, StringComparison.Ordinal);
+            var endIndex = source.IndexOf(end, startIndex + 1, StringComparison.Ordinal);
             return source.Substring(startIndex + start.Length, endIndex - startIndex - start.Length);
         }
 

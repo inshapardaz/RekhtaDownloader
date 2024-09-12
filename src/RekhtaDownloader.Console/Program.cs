@@ -1,16 +1,21 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using RekhtaDownloader;
-using System.CommandLine;
-using Common;
-using System;
+﻿using System.CommandLine;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
-namespace Downloader
+namespace RekhtaDownloader.Console
 {
-    public class Program
+    public static class Program
     {
-        public static async Task<int> Main(string[] args)
+        static readonly ILoggerFactory LoggingFactory = LoggerFactory.Create(builder => builder
+            .AddSimpleConsole(opt =>
+            {
+                opt.SingleLine = true;
+            })
+        );
+
+    public static async Task<int> Main(string[] args)
         {
             var urlOption = new Option<string>(
                 name: "--url",
@@ -70,32 +75,33 @@ namespace Downloader
         {
             //var bookUrl = "https://rekhta.org/ebooks/alfaz-shumara-number-000-jameel-akhtar-magazines-7/";
 
-            await new BookExporter(new ConsoleLogger()).DownloadBook(bookUrl, taskCount, outputType);
+            await new BookExporter(LoggingFactory.CreateLogger<BookExporter>())
+                .DownloadBook(bookUrl, taskCount, outputType,  null, token);
         }
 
         private static async Task GetBookInfo(string bookUrl, CancellationToken token)
         {
             //var bookUrl = "https://www.rekhta.org/ebooks/detail/patras-ke-mazameen-patras-bukhari-ebooks-2?lang=ur";
-            var logger = new ConsoleLogger();
+            var logger = LoggingFactory.CreateLogger<BookExporter>();
             var bookInfo = await new BookExporter(logger).GetBookInformation(bookUrl, token);
             if (bookInfo != null)
             {
-                logger.Log("BOOK INFORMATION");
-                logger.Log("=======================");
-                logger.Log($"TITLE : { bookInfo.Title }");
+                logger.LogInformation("BOOK INFORMATION");
+                logger.LogInformation("=======================");
+                logger.LogInformation($"TITLE : { bookInfo.Title }");
                 if (bookInfo.Authors != null && bookInfo.Authors.Any())
                 {
-                    logger.Log($"AUTHOR : {bookInfo.Authors.FirstOrDefault()}");
+                    logger.LogInformation($"AUTHOR : {bookInfo.Authors.FirstOrDefault()}");
                 }
 
                 if (!string.IsNullOrWhiteSpace(bookInfo.Publisher))
                 {
-                    logger.Log($"PUBLISHER : {bookInfo.Publisher}");
+                    logger.LogInformation($"PUBLISHER : {bookInfo.Publisher}");
                 }
 
                 if (bookInfo.Year > 0)
                 {
-                    logger.Log($"PUBLISH YEAR : {bookInfo.Year}");
+                    logger.LogInformation($"PUBLISH YEAR : {bookInfo.Year}");
                 }
             }
         }
