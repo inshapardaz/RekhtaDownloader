@@ -2,7 +2,7 @@
   "profiles": {
     "Downloader": {
       "commandName": "Project",
-      "commandLineArgs": "--url https://www.rekhta.org/ebooks/mirat-ul-uroos-deputy-naziir-ahmad-ebooks?lang=ur"
+      "commandLineArgs": "--url https://www.rekhta.org/ebooks/hi-hi-ha-ha-ebooks?lang=ur"
     }
   }
 }

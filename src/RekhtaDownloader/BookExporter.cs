@@ -26,7 +26,8 @@ namespace RekhtaDownloader
 
         public async Task<BookInfo> GetBookInformation(string bookUrl, CancellationToken token = default(CancellationToken))
         {
-            var book = new Book(bookUrl, 1, _logger, token);
+            var url = new Uri(bookUrl);
+            var book = new Book(url.GetLeftPart(UriPartial.Path), 1, _logger, token);
             return await book.GetBookInformation();
         }
 
