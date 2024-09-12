@@ -18,9 +18,9 @@ namespace RekhtaDownloader
 {
     public class BookExporter
     {
-        private readonly ILogger<BookExporter> _logger;
+        private readonly ILogger _logger;
 
-        public BookExporter(ILogger<BookExporter> logger)
+        public BookExporter(ILogger logger)
         {
             _logger = logger;
         }

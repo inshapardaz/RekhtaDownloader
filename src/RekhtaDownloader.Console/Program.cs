@@ -75,14 +75,14 @@ namespace RekhtaDownloader.Console
         {
             //var bookUrl = "https://rekhta.org/ebooks/alfaz-shumara-number-000-jameel-akhtar-magazines-7/";
 
-            await new BookExporter(LoggingFactory.CreateLogger<BookExporter>())
+            await new BookExporter(LoggingFactory.CreateLogger(nameof(RekhtaDownloader)))
                 .DownloadBook(bookUrl, taskCount, outputType,  null, token);
         }
 
         private static async Task GetBookInfo(string bookUrl, CancellationToken token)
         {
             //var bookUrl = "https://www.rekhta.org/ebooks/detail/patras-ke-mazameen-patras-bukhari-ebooks-2?lang=ur";
-            var logger = LoggingFactory.CreateLogger<BookExporter>();
+            var logger = LoggingFactory.CreateLogger(nameof(RekhtaDownloader));
             var bookInfo = await new BookExporter(logger).GetBookInformation(bookUrl, token);
             if (bookInfo != null)
             {
